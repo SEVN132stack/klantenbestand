@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+
+  # ─── Database ─────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: portaal_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clientportaal
+      POSTGRES_USER: cpuser
+      POSTGRES_PASSWORD: Portaal2024!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - portaal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cpuser -d clientportaal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API ──────────────────────────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: portaal_api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://cpuser:Portaal2024!@db:5432/clientportaal
+      SECRET_KEY: d3f4ult5ecr3tK3y32tekensLangGenoeg!
+      ACCESS_TOKEN_EXPIRE_MINUTES: 120
+      ENVIRONMENT: production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - portaal
+
+  # ─── Frontend + Reverse Proxy ─────────────────────────────────────────────
+  web:
+    image: nginx:1.25-alpine
+    container_name: portaal_web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./app.js:/usr/share/nginx/html/app.js:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - portaal
+
+volumes:
+  postgres_data:
+
+networks:
+  portaal:
+    driver: bridge

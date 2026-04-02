@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliëntenportaal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg1:#fff;--bg2:#f5f5f3;--bg3:#e8e8e5;--t1:#1a1a1a;--t2:#5f5e5a;--t3:#8a8a82;--bd:rgba(0,0,0,0.11);--bd2:rgba(0,0,0,0.2);--acc:#185FA5;--r:8px;--rl:12px}
+body.dark{--bg1:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--t1:#efede8;--t2:#9e9d96;--t3:#65635e;--bd:rgba(255,255,255,0.1);--bd2:rgba(255,255,255,0.18);--acc:#378ADD}
+body{font-family:system-ui,sans-serif;font-size:14px;color:var(--t1);background:var(--bg2);min-height:100vh;transition:background .2s,color .2s}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.login-card{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:2rem;width:100%;max-width:380px}
+.login-card h1{font-size:20px;font-weight:500;margin-bottom:4px;color:var(--t1)}
+.login-card p{font-size:13px;color:var(--t2);margin-bottom:1.5rem}
+.ff{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.ff label{font-size:12px;color:var(--t2);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.ff input{padding:9px 12px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit}
+.ff input:focus{outline:none;border-color:var(--acc)}
+.login-btn{width:100%;padding:10px;border:none;border-radius:var(--r);background:var(--acc);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px}
+.login-btn:hover{opacity:.88}
+.login-err{font-size:13px;color:#A32D2D;background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:var(--r);padding:8px 12px;margin-top:10px;display:none}
+.shell{display:none;flex-direction:column;min-height:100vh}
+.shell.visible{display:flex}
+.navbar{background:var(--bg1);border-bottom:0.5px solid var(--bd);padding:0 1.5rem;display:flex;align-items:center;gap:16px;height:52px;flex-shrink:0}
+.navbar-brand{font-weight:500;font-size:15px;color:var(--t1);flex:1}
+.nav-user{font-size:12px;color:var(--t2);background:var(--bg2);padding:4px 10px;border-radius:20px;border:0.5px solid var(--bd)}
+.nav-btn{padding:5px 12px;border:0.5px solid var(--bd2);border-radius:var(--r);background:none;color:var(--t1);font-size:12px;cursor:pointer;font-family:inherit}
+.nav-btn:hover{background:var(--bg2)}
+.toggle-wrap{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.toggle-wrap span{font-size:12px;color:var(--t2)}
+.track{width:32px;height:18px;border-radius:18px;background:var(--bg3);border:0.5px solid var(--bd2);position:relative;transition:background .2s;flex-shrink:0}
+body.dark .track{background:var(--acc)}
+.thumb{width:12px;height:12px;border-radius:50%;background:var(--t3);position:absolute;top:2px;left:3px;transition:transform .2s,background .2s}
+body.dark .thumb{transform:translateX(14px);background:#fff}
+.content{flex:1;padding:1.5rem;max-width:1100px;margin:0 auto;width:100%}
+.tabs{display:flex;border-bottom:0.5px solid var(--bd);margin-bottom:1.5rem}
+.tab{padding:9px 16px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;white-space:nowrap}
+.tab.on{color:var(--t1);border-bottom:2px solid var(--acc);font-weight:500}
+.tab:hover:not(.on){color:var(--t1)}
+.sec{display:none}.sec.on{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.stat{background:var(--bg2);border-radius:var(--r);padding:10px 14px}
+.stat-l{font-size:11px;color:var(--t2);margin-bottom:3px}
+.stat-v{font-size:20px;font-weight:500}
+.toolbar{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.toolbar input,.toolbar select{padding:7px 11px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;font-family:inherit}
+.toolbar input{flex:1;min-width:150px}
+.toolbar input:focus,.toolbar select:focus{outline:none;border-color:var(--acc)}
+.abtn{padding:7px 13px;border:0.5px solid var(--bd2);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.abtn:hover{background:var(--bg2)}
+.tbl-wrap{border:0.5px solid var(--bd);border-radius:var(--rl);overflow:hidden;background:var(--bg1)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 13px;border-bottom:0.5px solid var(--bd);color:var(--t2);font-weight:500;background:var(--bg2);white-space:nowrap}
+td{padding:9px 13px;border-bottom:0.5px solid var(--bd);color:var(--t1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg2)}
+.row-link{cursor:pointer}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.b-active{background:#E1F5EE;color:#085041}.b-ended{background:#FAECE7;color:#712B13}.b-other{background:#FAEEDA;color:#633806}
+body.dark .b-active{background:#085041;color:#9FE1CB}body.dark .b-ended{background:#712B13;color:#F5C4B3}body.dark .b-other{background:#633806;color:#FAC775}
+.xbtn{background:none;border:none;cursor:pointer;color:var(--t2);padding:3px 6px;border-radius:4px;font-size:13px}
+.xbtn:hover{background:var(--bg3);color:var(--t1)}
+.delbtn:hover{color:#791F1F;background:#FCEBEB}
+.detail-back{display:flex;align-items:center;gap:6px;margin-bottom:1.25rem;cursor:pointer;color:var(--t2);font-size:13px;border:none;background:none;font-family:inherit;padding:0}
+.detail-back:hover{color:var(--t1)}
+.detail-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+.detail-name{font-size:18px;font-weight:500}
+.detail-sub{font-size:13px;color:var(--t2);margin-top:3px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:1.25rem}
+.dcard{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.25rem}
+.dcard-t{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.irow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--bd);font-size:13px}
+.irow:last-child{border-bottom:none}
+.ik{color:var(--t2)}.iv{color:var(--t1);font-weight:500;text-align:right}
+.notes-area{width:100%;min-height:110px;padding:10px 12px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;font-family:inherit;resize:vertical;line-height:1.6}
+.notes-area:focus{outline:none;border-color:var(--acc)}
+.notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.notes-meta{font-size:11px;color:var(--t3)}
+.save-note{padding:6px 14px;border:none;border-radius:var(--r);background:var(--acc);color:#fff;font-size:12px;cursor:pointer;font-family:inherit}
+.audit-list{display:flex;flex-direction:column}
+.aentry{display:flex;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--bd)}
+.aentry:last-child{border-bottom:none}
+.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.dot-edit{background:#185FA5}.dot-add{background:#0F6E56}.dot-delete{background:#A32D2D}.dot-note{background:#854F0B}.dot-status{background:#534AB7}
+.abody{flex:1;min-width:0}
+.aaction{font-size:13px;color:var(--t1);line-height:1.4}
+.aaction strong{font-weight:500}
+.ameta{font-size:11px;color:var(--t3);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.adiff{background:var(--bg2);border-radius:6px;padding:6px 10px;margin-top:6px;font-size:12px;color:var(--t2);border-left:2px solid var(--bd2)}
+.aold{color:#A32D2D}.anew{color:#0F6E56}
+body.dark .aold{color:#fca5a5}body.dark .anew{color:#6edba8}
+.chip{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;background:var(--bg2);color:var(--t2);margin-left:4px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin-bottom:10px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.tg-l{background:#dbeafe;color:#1e40af}.tg-b{background:#dcfce7;color:#166534}.tg-s{background:#fef3cd;color:#7a4f00}
+.tg-k{background:#ede9fe;color:#4c1d95}.tg-p{background:#ffe4e6;color:#881337}.tg-e{background:#f1f0e8;color:#44403c}
+body.dark .tg-l{background:#1e3a5f;color:#93c5fd}body.dark .tg-b{background:#14532d;color:#86efac}
+body.dark .tg-s{background:#4a2e00;color:#fbbf24}body.dark .tg-k{background:#2e1065;color:#c4b5fd}
+body.dark .tg-p{background:#4c0519;color:#fda4af}body.dark .tg-e{background:#3a3a37;color:#d6d3c8}
+.tagx{background:none;border:none;cursor:pointer;color:inherit;opacity:.55;padding:0;font-size:13px}
+.tagx:hover{opacity:1}
+.dvd{height:0.5px;background:var(--bd);margin:8px 0}
+.arow{display:flex;gap:6px}
+.arow input{flex:1;min-width:0;padding:6px 10px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;font-family:inherit}
+.arow input:focus{outline:none;border-color:var(--acc)}
+.arow button{padding:6px 12px;border:0.5px solid var(--bd2);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;cursor:pointer;font-family:inherit}
+.arow button:hover{background:var(--bg2)}
+.cfg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ccard{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.25rem}
+.ccard.full{grid-column:1/-1}
+.ccard-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ctitle{font-size:14px;font-weight:500;color:var(--t1)}
+.ccnt{font-size:12px;color:var(--t2);background:var(--bg2);padding:2px 8px;border-radius:20px}
+.roles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-bottom:1.5rem}
+.rcard{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1.25rem}
+.rcard-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rico{width:36px;height:36px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
+.rname{font-weight:500;font-size:14px;color:var(--t1)}
+.rdesc{font-size:12px;color:var(--t2);margin-top:1px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--bd);font-size:12px;color:var(--t2)}
+.prow:last-child{border-bottom:none}
+.pvb{font-size:11px;font-weight:500;padding:2px 7px;border-radius:20px}
+.pv-full{background:#dcf5e9;color:#0a5c38}.pv-read{background:#fef3cd;color:#7a4f00}.pv-none{background:#fde8e8;color:#7a1f1f}
+body.dark .pv-full{background:#0a3d28;color:#6edba8}body.dark .pv-read{background:#4a2e00;color:#fbbf24}body.dark .pv-none{background:#4a1010;color:#fca5a5}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:1.5rem;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg1);border:0.5px solid var(--bd2);border-radius:var(--rl);padding:1.5rem;width:100%;max-width:560px;margin-top:.5rem}
+.modal h3{font-size:16px;font-weight:500;margin-bottom:1.25rem;color:var(--t1)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ff2{display:flex;flex-direction:column;gap:4px}.ff2.full{grid-column:span 2}
+.ff2 label{font-size:11px;color:var(--t2);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.ff2 input,.ff2 select,.ff2 textarea{padding:7px 10px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;font-family:inherit}
+.ff2 textarea{resize:vertical;min-height:60px}
+.ff2 input:focus,.ff2 select:focus,.ff2 textarea:focus{outline:none;border-color:var(--acc)}
+.mact{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem}
+.bcnl{padding:7px 15px;border:0.5px solid var(--bd2);border-radius:var(--r);background:none;color:var(--t1);font-size:13px;cursor:pointer;font-family:inherit}
+.bsav{padding:7px 15px;border:none;border-radius:var(--r);background:var(--acc);color:#fff;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit}
+.bsav:hover{opacity:.88}
+.av{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
+.ncell{display:flex;align-items:center;gap:8px}
+.rbdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.rb-a{background:#dbeafe;color:#1e40af}.rb-e{background:#dcfce7;color:#166534}.rb-r{background:#f1f0e8;color:#44403c}
+body.dark .rb-a{background:#1e3a5f;color:#93c5fd}body.dark .rb-e{background:#14532d;color:#86efac}body.dark .rb-r{background:#3a3a37;color:#d6d3c8}
+.savebar{margin-top:1.5rem;display:flex;align-items:center;gap:10px;padding-bottom:2rem}
+.sbtn{padding:8px 18px;border:none;border-radius:var(--r);background:var(--acc);color:#fff;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit}
+.sbtn:hover{opacity:.88}
+.toast{display:none;padding:7px 14px;border-radius:var(--r);background:#E1F5EE;color:#085041;font-size:13px;font-weight:500}
+body.dark .toast{background:#085041;color:#9FE1CB}
+.toast.on{display:inline-block}
+.empty-state{text-align:center;padding:2.5rem;color:var(--t2);font-size:13px}
+.sub{display:none}.sub.on{display:block}
+.fin-overzicht{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:1.25rem}
+.fin-card{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.25rem}
+.fin-label{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:500}
+.fin-val{font-size:20px;font-weight:500;color:var(--t1);margin-bottom:4px}
+.fin-bar-wrap{height:5px;background:var(--bg3);border-radius:5px;overflow:hidden;margin-top:8px}
+.fin-bar{height:100%;border-radius:5px;transition:width .4s}
+.rap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.rap-card{background:var(--bg1);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:14px}
+.rap-icon{width:44px;height:44px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rap-info{flex:1;min-width:0}
+.rap-title{font-size:14px;font-weight:500;color:var(--t1);margin-bottom:3px}
+.rap-desc{font-size:12px;color:var(--t2);line-height:1.4}
+.rap-btn{padding:7px 16px;border:0.5px solid var(--acc);border-radius:var(--r);background:none;color:var(--acc);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.rap-btn:hover{background:var(--acc);color:#fff}
+.rap-btn.loading{opacity:.6;cursor:default}
+</style>
+</head>
+<body>
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <h1>Cliëntenportaal</h1>
+    <p>Log in om toegang te krijgen</p>
+    <div class="ff"><label>E-mailadres</label><input id="l-email" type="email" placeholder="gebruiker@organisatie.nl" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="ff"><label>Wachtwoord</label><input id="l-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" onclick="doLogin()">Inloggen</button>
+    <div class="login-err" id="login-err">Onjuist e-mailadres of wachtwoord.</div>
+  </div>
+</div>
+<div class="shell" id="shell">
+  <nav class="navbar">
+    <div class="navbar-brand">Cliëntenportaal</div>
+    <div class="nav-user" id="nav-user"></div>
+    <div class="toggle-wrap" onclick="tDark()"><div class="track"><div class="thumb"></div></div><span id="dlbl">Donker</span></div>
+    <button class="nav-btn" onclick="doLogout()">Uitloggen</button>
+  </nav>
+  <div class="content">
+    <div class="tabs" id="main-tabs">
+      <button class="tab on" onclick="sw('list',this)">Overzicht</button>
+      <button class="tab" onclick="sw('detail',this)" id="tab-detail" style="display:none">Dossier</button>
+      <button class="tab" onclick="sw('log',this)">Logboek</button>
+      <button class="tab" onclick="sw('rapportages',this)">Rapportages</button>
+      <button class="tab" id="tab-settings" onclick="sw('settings',this)" style="display:none">Instellingen</button>
+    </div>
+    <div class="sec on" id="s-list">
+      <div class="stats" id="stats-bar"></div>
+      <div class="fin-overzicht" id="fin-overzicht"></div>
+      <div class="toolbar">
+        <input id="srch" placeholder="Zoeken op naam, klant, begeleider..." oninput="renderList()">
+        <select id="fstat" onchange="renderList()"><option value="">Alle statussen</option><option>In zorg</option><option>Uit Zorg</option><option>Aangemeld</option><option>In ZTO</option><option>Afronden</option></select>
+        <button class="abtn" id="btn-add-client" onclick="openModal(null)" style="display:none">+ Nieuwe cliënt</button>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Naam</th><th>Status</th><th>Klant</th><th>Start</th><th>Einde</th><th>Begeleider</th><th>Notitie</th><th></th></tr></thead><tbody id="list-tbody"></tbody></table></div>
+    </div>
+
+    <!-- RAPPORTAGES -->
+    <div class="sec" id="s-rapportages">
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:16px;font-weight:500;color:var(--t1);margin-bottom:4px">Rapportages</div>
+        <div style="font-size:13px;color:var(--t2)">Exporteer gegevens als Excel-bestand (.xlsx)</div>
+      </div>
+      <div class="rap-grid">
+        <div class="rap-card">
+          <div class="rap-icon" style="background:#E6F1FB;color:#185FA5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </div>
+          <div class="rap-info">
+            <div class="rap-title">Cliëntenoverzicht</div>
+            <div class="rap-desc">Alle cliënten met persoonsgegevens, begeleiders en datums</div>
+          </div>
+          <button class="rap-btn" onclick="exportRapport('clienten')">Exporteren</button>
+        </div>
+        <div class="rap-card">
+          <div class="rap-icon" style="background:#E1F5EE;color:#0F6E56">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="rap-info">
+            <div class="rap-title">Financieel overzicht</div>
+            <div class="rap-desc">Bedrag beschikt, gefactureerd, betaald en openstaand per cliënt</div>
+          </div>
+          <button class="rap-btn" onclick="exportRapport('financieel')">Exporteren</button>
+        </div>
+        <div class="rap-card">
+          <div class="rap-icon" style="background:#FAEEDA;color:#854F0B">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="rap-info">
+            <div class="rap-title">Zorgstatus rapport</div>
+            <div class="rap-desc">Aparte tabbladen per status: in zorg, uit zorg en overig</div>
+          </div>
+          <button class="rap-btn" onclick="exportRapport('zorgstatus')">Exporteren</button>
+        </div>
+        <div class="rap-card">
+          <div class="rap-icon" style="background:#EEEDFE;color:#534AB7">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="rap-info">
+            <div class="rap-title">Overzicht per klant</div>
+            <div class="rap-desc">Elk tabblad bevat de cliënten van één klant/organisatie</div>
+          </div>
+          <button class="rap-btn" onclick="exportRapport('per-klant')">Exporteren</button>
+        </div>
+      </div>
+      <div id="rap-status" style="margin-top:1rem;font-size:13px;color:var(--t2);display:none"></div>
+    </div>
+    <div class="sec" id="s-detail">
+      <button class="detail-back" onclick="backToList()">&#8592; Terug naar overzicht</button>
+      <div id="detail-content"></div>
+    </div>
+    <div class="sec" id="s-log">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+        <div style="font-size:13px;color:var(--t2)" id="log-count"></div>
+        <select id="log-filter" onchange="renderGlobalLog()" style="padding:6px 11px;border:0.5px solid var(--bd);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:13px;font-family:inherit;cursor:pointer">
+          <option value="">Alle wijzigingen</option><option value="edit">Bewerkt</option><option value="add">Toegevoegd</option><option value="note">Notitie</option><option value="status">Status</option>
+        </select>
+      </div>
+      <div class="dcard"><div class="audit-list" id="global-log-list"></div></div>
+    </div>
+    <div class="sec" id="s-settings">
+      <div class="tabs" style="margin-bottom:1.25rem">
+        <button class="tab on" onclick="swSub('sub-rollen',this)">Rollen</button>
+        <button class="tab" onclick="swSub('sub-gebruikers',this)">Gebruikers</button>
+        <button class="tab" onclick="swSub('sub-config',this)">Configuratie</button>
+      </div>
+      <div id="sub-rollen" class="sub on"><div class="roles-grid" id="roles-grid"></div><div class="dcard"><div style="font-size:14px;font-weight:500;margin-bottom:12px;color:var(--t1)">Rechtenmatrix</div><div id="mx"></div></div></div>
+      <div id="sub-gebruikers" class="sub">
+        <div class="toolbar"><input id="usrq" placeholder="Zoeken..." oninput="renderUsers()"><button class="abtn" onclick="openUserModal(null)">+ Gebruiker toevoegen</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Naam</th><th>E-mail</th><th>Rol</th><th>Laatste login</th><th></th></tr></thead><tbody id="user-tbody"></tbody></table></div>
+      </div>
+      <div id="sub-config" class="sub"><div class="cfg-grid" id="cfg-grid"></div></div>
+      <div class="savebar"><button class="sbtn" onclick="saveSettings()">Wijzigingen opslaan</button><span class="toast" id="tst">Opgeslagen</span></div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="edit-modal">
+<div class="modal">
+  <h3 id="modal-title">Cliënt toevoegen</h3>
+  <div class="form-grid">
+    <div class="ff2 full"><label>Naam</label><input id="f-naam" placeholder="Volledige naam"></div>
+    <div class="ff2"><label>BSN</label><input id="f-bsn"></div>
+    <div class="ff2"><label>Geboortedatum</label><input id="f-geb" type="date"></div>
+    <div class="ff2"><label>Status</label><select id="f-status"><option>In zorg</option><option>Uit Zorg</option><option>Aangemeld</option><option>In ZTO</option><option>Afronden</option><option>Nieuwe beschikking aanvragen</option></select></div>
+    <div class="ff2"><label>Klant</label><select id="f-klant"><option value=""></option></select></div>
+    <div class="ff2"><label>Datum start</label><input id="f-start" type="date"></div>
+    <div class="ff2"><label>Einde beschikking</label><input id="f-einde" type="date"></div>
+    <div class="ff2"><label>Datum sluiting</label><input id="f-sluiting" type="date"></div>
+    <div class="ff2"><label>Locatie</label><select id="f-locatie"><option value=""></option></select></div>
+    <div class="ff2"><label>Begeleider 1</label><select id="f-beg1"><option value=""></option></select></div>
+    <div class="ff2"><label>Begeleider 2</label><select id="f-beg2"><option value=""></option></select></div>
+    <div class="ff2"><label>Bedrag beschikt (€)</label><input id="f-bedrag" type="number" step="0.01"></div>
+    <div class="ff2"><label>Gefactureerd (€)</label><input id="f-gefact" type="number" step="0.01"></div>
+    <div class="ff2"><label>Betaald (€)</label><input id="f-betaald" type="number" step="0.01"></div>
+    <div class="ff2"><label>Uur/dagdeel per week</label><input id="f-uur"></div>
+    <div class="ff2"><label>Enquête gestuurd</label><select id="f-enquete"><option value="">—</option><option>Ja</option><option>Nee</option></select></div>
+    <div class="ff2 full"><label>Opmerkingen</label><textarea id="f-opm"></textarea></div>
+  </div>
+  <div class="mact"><button class="bcnl" onclick="closeModal()">Annuleren</button><button class="bsav" onclick="saveClient()">Opslaan</button></div>
+</div>
+</div>
+<div class="modal-bg" id="user-modal">
+<div class="modal" style="max-width:400px">
+  <h3 id="umodal-title">Gebruiker toevoegen</h3>
+  <div class="ff2" style="margin-bottom:12px"><label>Naam</label><input id="fu-naam"></div>
+  <div class="ff2" style="margin-bottom:12px"><label>E-mail</label><input id="fu-email" type="email"></div>
+  <div class="ff2" style="margin-bottom:12px"><label>Wachtwoord</label><input id="fu-pass" type="password" placeholder="Laat leeg om niet te wijzigen"></div>
+  <div class="ff2" style="margin-bottom:12px"><label>Rol</label><select id="fu-role"><option value="admin">Admin</option><option value="bewerker">Bewerker</option><option value="alleen_lezen" selected>Alleen lezen</option></select></div>
+  <div class="mact"><button class="bcnl" onclick="closeUserModal()">Annuleren</button><button class="bsav" onclick="saveUser()">Opslaan</button></div>
+</div>
+</div>
+<script>
+const API='/api';
+let token=localStorage.getItem('cp_token'),currentUser=null,dark=localStorage.getItem('cp_dark')==='1';
+let editingId=null,viewingId=null,editingUserId=null,clients=[],auditLog=[],users=[];
+const FL={naam:'Naam',bsn:'BSN',status:'Status',klant:'Klant',locatie:'Locatie',begeleider_1:'Begeleider 1',begeleider_2:'Begeleider 2',datum_start:'Datum start',einde_beschikking:'Einde beschikking',bedrag_beschikt:'Bedrag',gefactureerd:'Gefactureerd',betaald:'Betaald',uur_per_week:'Uur/week'};
+const DOTMAP={edit:'dot-edit',add:'dot-add',delete:'dot-delete',note:'dot-note',status:'dot-status'};
+const PVL={full:{l:'Volledig',c:'pv-full'},read:{l:'Inzien',c:'pv-read'},none:{l:'Geen',c:'pv-none'}};
+const ROLES_DEF=[
+  {k:'admin',l:'Admin',d:'Volledige toegang',ic:'A',bg:'#dbeafe',tc:'#1e40af',p:{'Cliënten bekijken':'full','Cliënten bewerken':'full','Cliënten verwijderen':'full','Configuratie':'full','Gebruikers':'full'}},
+  {k:'bewerker',l:'Bewerker',d:'Kan cliënten bewerken',ic:'B',bg:'#dcfce7',tc:'#166534',p:{'Cliënten bekijken':'full','Cliënten bewerken':'full','Cliënten verwijderen':'none','Configuratie':'none','Gebruikers':'none'}},
+  {k:'alleen_lezen',l:'Alleen lezen',d:'Alleen inzien',ic:'L',bg:'#f1f0e8',tc:'#44403c',p:{'Cliënten bekijken':'full','Cliënten bewerken':'none','Cliënten verwijderen':'none','Configuratie':'none','Gebruikers':'none'}},
+];
+const CFG_DEF={
+  locatie:{l:'Locaties',c:'tg-l',i:['Smederij','Ambulant','TFR','Dagbesteding','Stage']},
+  begeleider:{l:'Begeleiders',c:'tg-b',i:['Lennart','Floris','Taru','Britt','Olger','Bente','Laurien','Jantine','Claire']},
+  klant:{l:'Klanten',c:'tg-k',i:['Dronten','Kampen','Zwolle','Intern','Klaver4You','RIBW','PGB','Gemeente Olst-Wijhe','Boslust Dependance de Laarakkers','Stapsgewijs','Gemeente Lelystad','Gemeente Hardenberg','Menso','Gemeente Aa en Hunze']},
+  product:{l:'Producten',c:'tg-p',i:['Individueel','Dagbesteding']},
+  eenheid:{l:'Eenheden',c:'tg-e',i:['Maand','Week','Dagdeel','Uur','Minuut']},
+};
+const AVC=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#ede9fe','#4c1d95'],['#fef3cd','#7a4f00'],['#ffe4e6','#881337'],['#f1f0e8','#44403c']];
+async function api(method,path,body){const opts={method,headers:{'Content-Type':'application/json'}};if(token)opts.headers['Authorization']='Bearer '+token;if(body)opts.body=JSON.stringify(body);const r=await fetch(API+path,opts);if(r.status===401){doLogout();return null;}if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText);}if(r.status===204)return null;return r.json();}
+async function doLogin(){const email=document.getElementById('l-email').value,pass=document.getElementById('l-pass').value,err=document.getElementById('login-err');err.style.display='none';try{const form=new FormData();form.append('username',email);form.append('password',pass);const r=await fetch(API+'/auth/login',{method:'POST',body:form});if(!r.ok){err.style.display='block';return;}const data=await r.json();token=data.access_token;currentUser=data.user;localStorage.setItem('cp_token',token);startApp();}catch(e){err.style.display='block';}}
+function doLogout(){token=null;currentUser=null;localStorage.removeItem('cp_token');document.getElementById('login-wrap').style.display='flex';document.getElementById('shell').classList.remove('visible');}
+async function startApp(){if(!token)return;try{if(!currentUser)currentUser=await api('GET','/auth/me');if(!currentUser)return;}catch(e){doLogout();return;}document.getElementById('login-wrap').style.display='none';document.getElementById('shell').classList.add('visible');document.getElementById('nav-user').textContent=currentUser.naam+' · '+rolLabel(currentUser.role);const isAdmin=currentUser.role==='admin',canWrite=currentUser.role!=='alleen_lezen';if(isAdmin)document.getElementById('tab-settings').style.display='';if(canWrite)document.getElementById('btn-add-client').style.display='';if(dark)applyDark();await loadAll();renderList();renderRoles();if(isAdmin){renderUsers();renderConfig();}}
+function rolLabel(r){return{admin:'Admin',bewerker:'Bewerker',alleen_lezen:'Alleen lezen'}[r]||r;}
+async function loadAll(){try{clients=await api('GET','/clienten/')||[];}catch(e){clients=[];}try{auditLog=await api('GET','/audit/')||[];}catch(e){auditLog=[];}if(currentUser.role==='admin'){try{users=await api('GET','/gebruikers/')||[];}catch(e){users=[];}}}
+function tDark(){dark=!dark;localStorage.setItem('cp_dark',dark?'1':'0');applyDark();}
+function applyDark(){document.body.classList.toggle('dark',dark);document.getElementById('dlbl').textContent=dark?'Licht':'Donker';}
+function sw(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('#main-tabs .tab').forEach(b=>b.classList.remove('on'));document.getElementById('s-'+id).classList.add('on');if(btn)btn.classList.add('on');if(id==='log')renderGlobalLog();if(id==='settings'){renderRoles();if(currentUser.role==='admin'){renderUsers();renderConfig();}}}
+function swSub(id,btn){document.querySelectorAll('.sub').forEach(s=>s.classList.remove('on'));document.querySelectorAll('#s-settings .tabs .tab').forEach(b=>b.classList.remove('on'));document.getElementById(id).classList.add('on');if(btn)btn.classList.add('on');}
+function backToList(){document.getElementById('tab-detail').style.display='none';sw('list',document.querySelector('#main-tabs .tab'));}
+function fmtD(d){if(!d)return'—';const p=String(d).substring(0,10).split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:d;}
+function fmtE(v){if(v===null||v===undefined||v==='')return'—';return'€'+parseFloat(v).toLocaleString('nl-NL',{minimumFractionDigits:2});}
+function stBadge(s){const m={'In zorg':'b-active','Uit Zorg':'b-ended'};return`<span class="badge ${m[s]||'b-other'}">${s}</span>`;}
+function renderStats(){const a=clients.filter(c=>c.status==='In zorg').length,e=clients.filter(c=>c.status==='Uit Zorg').length,o=clients.filter(c=>c.status!=='In zorg'&&c.status!=='Uit Zorg').length;document.getElementById('stats-bar').innerHTML=`<div class="stat"><div class="stat-l">In zorg</div><div class="stat-v" style="color:#0F6E56">${a}</div></div><div class="stat"><div class="stat-l">Uit zorg</div><div class="stat-v" style="color:#712B13">${e}</div></div><div class="stat"><div class="stat-l">Overig</div><div class="stat-v" style="color:#854F0B">${o}</div></div><div class="stat"><div class="stat-l">Totaal</div><div class="stat-v">${clients.length}</div></div>`;}
+function renderList(){renderStats();renderFinancieel();const q=(document.getElementById('srch').value||'').toLowerCase(),fs=document.getElementById('fstat').value,canWrite=currentUser&&currentUser.role!=='alleen_lezen',rows=clients.filter(c=>(!q||c.naam.toLowerCase().includes(q)||(c.klant||'').toLowerCase().includes(q)||(c.begeleider_1||'').toLowerCase().includes(q))&&(!fs||c.status===fs)),tb=document.getElementById('list-tbody');if(!rows.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty-state">Geen cliënten gevonden</div></td></tr>`;return;}tb.innerHTML=rows.map(c=>`<tr class="row-link" onclick="openDetail('${c.id}')"><td style="font-weight:500">${c.naam}</td><td>${stBadge(c.status)}</td><td>${c.klant||'—'}</td><td>${fmtD(c.datum_start)}</td><td>${fmtD(c.einde_beschikking)}</td><td>${[c.begeleider_1,c.begeleider_2].filter(Boolean).join(', ')||'—'}</td><td style="color:var(--t3);font-size:12px">${c.notitie?c.notitie.substring(0,35)+(c.notitie.length>35?'…':''):'—'}</td><td onclick="event.stopPropagation()" style="white-space:nowrap">${canWrite?`<button class="xbtn" onclick="openModal('${c.id}')">✎</button>`:''} ${canWrite?`<button class="xbtn delbtn" onclick="delClient('${c.id}')">✕</button>`:''}</td></tr>`).join('');}
+async function openDetail(id){viewingId=id;const c=clients.find(x=>x.id===id);if(!c)return;document.getElementById('tab-detail').style.display='';document.getElementById('tab-detail').textContent='Dossier: '+c.naam;sw('detail',document.getElementById('tab-detail'));let clog=[];try{clog=await api('GET',`/clienten/${id}/audit`)||[];}catch(e){}const canWrite=currentUser&&currentUser.role!=='alleen_lezen',logHtml=clog.length?clog.map(e=>auditHtml(e)).join(''):`<div class="empty-state">Nog geen wijzigingen geregistreerd.</div>`;document.getElementById('detail-content').innerHTML=`<div class="detail-hdr"><div><div class="detail-name">${c.naam} <span class="chip">${c.bsn||'geen BSN'}</span></div><div class="detail-sub">${c.klant||'Onbekende klant'} · ${[c.begeleider_1,c.begeleider_2].filter(Boolean).join(' & ')||'Geen begeleider'}</div></div><div style="display:flex;gap:8px;align-items:center">${stBadge(c.status)}${canWrite?`<button class="abtn" onclick="openModal('${c.id}')">✎ Bewerken</button>`:''}</div></div><div class="dgrid"><div class="dcard"><div class="dcard-t">Zorgperiode</div><div class="irow"><span class="ik">Datum start</span><span class="iv">${fmtD(c.datum_start)}</span></div><div class="irow"><span class="ik">Einde beschikking</span><span class="iv">${fmtD(c.einde_beschikking)}</span></div><div class="irow"><span class="ik">Datum sluiting</span><span class="iv">${fmtD(c.datum_sluiting)}</span></div><div class="irow"><span class="ik">Locatie</span><span class="iv">${c.locatie||'—'}</span></div><div class="irow"><span class="ik">Uur/dagdeel p/w</span><span class="iv">${c.uur_per_week||'—'}</span></div></div><div class="dcard"><div class="dcard-t">Financiën</div><div class="irow"><span class="ik">Bedrag beschikt</span><span class="iv">${fmtE(c.bedrag_beschikt)}</span></div><div class="irow"><span class="ik">Gefactureerd</span><span class="iv">${fmtE(c.gefactureerd)}</span></div><div class="irow"><span class="ik">Betaald</span><span class="iv">${fmtE(c.betaald)}</span></div><div class="irow"><span class="ik">Enquête gestuurd</span><span class="iv">${c.enquete_gestuurd||'—'}</span></div></div></div><div class="dcard" style="margin-bottom:1.25rem"><div class="dcard-t">Notities</div>${canWrite?`<textarea class="notes-area" id="notes-input">${c.notitie||''}</textarea><div class="notes-footer"><span class="notes-meta" id="notes-meta">${c.notitie?'Notitie aanwezig':'Nog geen notitie'}</span><button class="save-note" onclick="saveNote('${c.id}')">Notitie opslaan</button></div>`:`<div style="font-size:13px;color:var(--t2);padding:8px 0;line-height:1.6">${c.notitie||'Geen notitie'}</div>`}</div><div class="dcard"><div class="dcard-t" style="margin-bottom:12px">Auditlogboek <span class="chip">${clog.length} wijzigingen</span></div><div class="audit-list" id="client-log">${logHtml}</div></div>`;}
+async function saveNote(id){const notitie=document.getElementById('notes-input').value;try{await api('PATCH',`/clienten/${id}/notitie`,{notitie});const c=clients.find(x=>x.id===id);if(c)c.notitie=notitie;const meta=document.getElementById('notes-meta');if(meta)meta.textContent='Opgeslagen';const now=new Date(),ts=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;const entry={type:'note',user_naam:currentUser.naam,actie:'Notitie bijgewerkt',veld:null,oude_waarde:null,nieuwe_waarde:'(notitie opgeslagen)',tijdstip:ts};const cl=document.getElementById('client-log');if(cl)cl.insertAdjacentHTML('afterbegin',auditHtml(entry));}catch(e){alert('Fout bij opslaan: '+e.message);}}
+function auditHtml(e){const diff=(e.veld&&e.oude_waarde&&e.nieuwe_waarde)?`<div class="adiff"><span class="aold">✕ ${e.oude_waarde}</span> &nbsp;→&nbsp; <span class="anew">✓ ${e.nieuwe_waarde}</span></div>`:(e.type==='note'&&e.nieuwe_waarde?`<div class="adiff" style="font-style:italic;color:var(--t2)">"${e.nieuwe_waarde}"</div>`:''),ts=e.tijdstip?String(e.tijdstip).substring(0,16).replace('T',' '):'';return `<div class="aentry"><div class="adot ${DOTMAP[e.type]||'dot-edit'}"></div><div class="abody"><div class="aaction"><strong>${e.user_naam}</strong> — ${e.actie}${e.veld?` <span style="color:var(--t3);font-size:12px">(${FL[e.veld]||e.veld})</span>`:''}</div>${diff}<div class="ameta"><span>${ts}</span>${e.client_naam?`<span style="color:var(--acc);cursor:pointer" onclick="openDetail('${e.client_id}')">${e.client_naam}</span>`:''}</div></div></div>`;}
+function renderGlobalLog(){const f=document.getElementById('log-filter').value,rows=f?auditLog.filter(e=>e.type===f):auditLog;document.getElementById('log-count').textContent=rows.length+' wijzigingen';const el=document.getElementById('global-log-list');el.innerHTML=rows.length?rows.map(e=>auditHtml(e)).join(''):`<div class="empty-state">Geen wijzigingen gevonden.</div>`;}
+function openModal(id){
+  editingId=id;
+  document.getElementById('modal-title').textContent=id?'Cliënt bewerken':'Cliënt toevoegen';
+  const c=id?clients.find(x=>x.id===id):null;
+  const g=(fid,val)=>{const el=document.getElementById(fid);if(el)el.value=val||'';};
+  // Vul dropdowns vanuit configuratie
+  const klantSel=document.getElementById('f-klant');
+  klantSel.innerHTML='<option value=""></option>'+CFG_DEF.klant.i.map(k=>`<option value="${k}">${k}</option>`).join('');
+  const locSel=document.getElementById('f-locatie');
+  locSel.innerHTML='<option value=""></option>'+CFG_DEF.locatie.i.map(k=>`<option value="${k}">${k}</option>`).join('');
+  const beg1Sel=document.getElementById('f-beg1');
+  beg1Sel.innerHTML='<option value=""></option>'+CFG_DEF.begeleider.i.map(k=>`<option value="${k}">${k}</option>`).join('');
+  const beg2Sel=document.getElementById('f-beg2');
+  beg2Sel.innerHTML='<option value=""></option>'+CFG_DEF.begeleider.i.map(k=>`<option value="${k}">${k}</option>`).join('');
+  g('f-naam',c?.naam);g('f-bsn',c?.bsn);g('f-geb',c?.geboortedatum?.substring?.(0,10));
+  g('f-status',c?.status||'In zorg');g('f-klant',c?.klant);
+  g('f-start',c?.datum_start?.substring?.(0,10));g('f-einde',c?.einde_beschikking?.substring?.(0,10));
+  g('f-sluiting',c?.datum_sluiting?.substring?.(0,10));g('f-locatie',c?.locatie);
+  g('f-beg1',c?.begeleider_1);g('f-beg2',c?.begeleider_2);
+  g('f-bedrag',c?.bedrag_beschikt);g('f-gefact',c?.gefactureerd);g('f-betaald',c?.betaald);
+  g('f-uur',c?.uur_per_week);g('f-enquete',c?.enquete_gestuurd);g('f-opm',c?.opmerkingen);
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('edit-modal').classList.remove('open');}
+async function saveClient(){const naam=document.getElementById('f-naam').value.trim();if(!naam)return;const body={naam,bsn:document.getElementById('f-bsn').value||null,geboortedatum:document.getElementById('f-geb').value||null,status:document.getElementById('f-status').value,klant:document.getElementById('f-klant').value||null,locatie:document.getElementById('f-locatie').value||null,begeleider_1:document.getElementById('f-beg1').value||null,begeleider_2:document.getElementById('f-beg2').value||null,datum_start:document.getElementById('f-start').value||null,einde_beschikking:document.getElementById('f-einde').value||null,datum_sluiting:document.getElementById('f-sluiting').value||null,bedrag_beschikt:parseFloat(document.getElementById('f-bedrag').value)||null,gefactureerd:parseFloat(document.getElementById('f-gefact').value)||null,betaald:parseFloat(document.getElementById('f-betaald').value)||null,uur_per_week:document.getElementById('f-uur').value||null,enquete_gestuurd:document.getElementById('f-enquete').value||null,opmerkingen:document.getElementById('f-opm').value||null};try{if(editingId){const u=await api('PUT',`/clienten/${editingId}`,body);Object.assign(clients.find(c=>c.id===editingId)||{},u||body);}else{const cr=await api('POST','/clienten/',body);clients.push(cr);}auditLog=await api('GET','/audit/')||auditLog;closeModal();renderList();if(editingId&&viewingId===editingId)openDetail(editingId);}catch(e){alert('Fout: '+e.message);}}
+async function delClient(id){if(!confirm('Cliënt verwijderen?'))return;try{await api('DELETE',`/clienten/${id}`);clients=clients.filter(c=>c.id!==id);if(viewingId===id){document.getElementById('tab-detail').style.display='none';backToList();}renderList();}catch(e){alert('Fout: '+e.message);}}
+function renderRoles(){document.getElementById('roles-grid').innerHTML=ROLES_DEF.map(r=>`<div class="rcard"><div class="rcard-hdr"><div class="rico" style="background:${r.bg};color:${r.tc}">${r.ic}</div><div><div class="rname">${r.l}</div><div class="rdesc">${r.d}</div></div></div><div>${Object.entries(r.p).map(([k,v])=>`<div class="prow"><span>${k}</span><span class="pvb ${PVL[v].c}">${PVL[v].l}</span></div>`).join('')}</div></div>`).join('');const ps=Object.keys(ROLES_DEF[0].p);document.getElementById('mx').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:7px 10px;color:var(--t2);border-bottom:0.5px solid var(--bd)">Recht</th>${ROLES_DEF.map(r=>`<th style="text-align:center;padding:7px 10px;color:var(--t2);border-bottom:0.5px solid var(--bd)">${r.l}</th>`).join('')}</tr></thead><tbody>${ps.map(p=>`<tr><td style="padding:6px 10px;border-bottom:0.5px solid var(--bd);color:var(--t1)">${p}</td>${ROLES_DEF.map(r=>`<td style="text-align:center;padding:6px 10px;border-bottom:0.5px solid var(--bd)"><span class="pvb ${PVL[r.p[p]].c}">${PVL[r.p[p]].l}</span></td>`).join('')}</tr>`).join('')}</tbody></table>`;}
+function ini(n){return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function renderUsers(){const q=(document.getElementById('usrq')?.value||'').toLowerCase(),rows=users.filter(u=>!q||u.naam.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)),tb=document.getElementById('user-tbody');if(!tb)return;if(!rows.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty-state">Geen gebruikers</div></td></tr>`;return;}const RM={admin:'rb-a',bewerker:'rb-e',alleen_lezen:'rb-r'};tb.innerHTML=rows.map((u,i)=>{const[bg,tc]=AVC[i%AVC.length];return`<tr><td><div class="ncell"><div class="av" style="background:${bg};color:${tc}">${ini(u.naam)}</div><span style="font-weight:500">${u.naam}</span></div></td><td style="color:var(--t2)">${u.email}</td><td><span class="rbdg ${RM[u.role]||'rb-r'}">${rolLabel(u.role)}</span></td><td style="color:var(--t2)">${u.laatst_ingelogd?String(u.laatst_ingelogd).substring(0,16).replace('T',' '):'Nooit'}</td><td style="white-space:nowrap"><button class="xbtn" onclick="openUserModal('${u.id}')">✎</button><button class="xbtn delbtn" onclick="delUser('${u.id}')">✕</button></td></tr>`;}).join('');}
+function openUserModal(id){editingUserId=id;document.getElementById('umodal-title').textContent=id?'Gebruiker bewerken':'Gebruiker toevoegen';const u=id?users.find(x=>x.id===id):null;document.getElementById('fu-naam').value=u?.naam||'';document.getElementById('fu-email').value=u?.email||'';document.getElementById('fu-pass').value='';document.getElementById('fu-role').value=u?.role||'alleen_lezen';document.getElementById('user-modal').classList.add('open');}
+function closeUserModal(){document.getElementById('user-modal').classList.remove('open');}
+async function saveUser(){const naam=document.getElementById('fu-naam').value.trim(),email=document.getElementById('fu-email').value.trim(),pass=document.getElementById('fu-pass').value,role=document.getElementById('fu-role').value;if(!naam||!email)return;try{const body={naam,email,role,actief:true};if(pass||!editingUserId)body.password=pass;if(editingUserId){await api('PUT',`/gebruikers/${editingUserId}`,body);users=await api('GET','/gebruikers/')||users;}else{const u=await api('POST','/gebruikers/',body);users.push(u);}closeUserModal();renderUsers();}catch(e){alert('Fout: '+e.message);}}
+async function delUser(id){if(!confirm('Gebruiker verwijderen?'))return;try{await api('DELETE',`/gebruikers/${id}`);users=users.filter(u=>u.id!==id);renderUsers();}catch(e){alert('Fout: '+e.message);}}
+function renderFinancieel(){
+  const totBeschikt=clients.reduce((s,c)=>s+(parseFloat(c.bedrag_beschikt)||0),0);
+  const totGefact=clients.reduce((s,c)=>s+(parseFloat(c.gefactureerd)||0),0);
+  const totBetaald=clients.reduce((s,c)=>s+(parseFloat(c.betaald)||0),0);
+  const totOpenstaand=totBeschikt-totGefact;
+  const pctGefact=totBeschikt>0?Math.round(totGefact/totBeschikt*100):0;
+  const pctBetaald=totGefact>0?Math.round(totBetaald/totGefact*100):0;
+  document.getElementById('fin-overzicht').innerHTML=`
+    <div class="fin-card">
+      <div class="fin-label">Bedrag beschikt</div>
+      <div class="fin-val">${fmtE(totBeschikt)}</div>
+      <div style="font-size:11px;color:var(--t3)">${clients.filter(c=>c.bedrag_beschikt).length} cliënten met beschikking</div>
+    </div>
+    <div class="fin-card">
+      <div class="fin-label">Gefactureerd</div>
+      <div class="fin-val" style="color:#185FA5">${fmtE(totGefact)}</div>
+      <div class="fin-bar-wrap"><div class="fin-bar" style="width:${pctGefact}%;background:#185FA5"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">${pctGefact}% van beschikt bedrag</div>
+    </div>
+    <div class="fin-card">
+      <div class="fin-label">Betaald</div>
+      <div class="fin-val" style="color:#0F6E56">${fmtE(totBetaald)}</div>
+      <div class="fin-bar-wrap"><div class="fin-bar" style="width:${pctBetaald}%;background:#0F6E56"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">${pctBetaald}% van gefactureerd</div>
+    </div>
+    <div class="fin-card">
+      <div class="fin-label">Openstaand</div>
+      <div class="fin-val" style="color:${totOpenstaand>0?'#854F0B':'#0F6E56'}">${fmtE(totOpenstaand)}</div>
+      <div style="font-size:11px;color:var(--t3)">Beschikt minus gefactureerd</div>
+    </div>`;
+}
+
+async function exportRapport(type){
+  const btn=event.target;
+  btn.classList.add('loading');
+  btn.textContent='Bezig...';
+  const status=document.getElementById('rap-status');
+  status.style.display='block';
+  status.textContent='Export wordt voorbereid...';
+  try{
+    const r=await fetch(`/api/export/${type}`,{headers:{Authorization:'Bearer '+token}});
+    if(!r.ok)throw new Error(await r.text());
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const cd=r.headers.get('Content-Disposition')||'';
+    const fname=cd.match(/filename=([^;]+)/)?.[1]||`export_${type}.xlsx`;
+    a.href=url;a.download=fname;a.click();
+    URL.revokeObjectURL(url);
+    status.textContent='Download gestart.';
+    setTimeout(()=>status.style.display='none',3000);
+  }catch(e){
+    status.textContent='Fout bij exporteren: '+e.message;
+  }finally{
+    btn.classList.remove('loading');
+    btn.textContent='Exporteren';
+  }
+}const g=document.getElementById('cfg-grid');if(!g)return;g.innerHTML='';Object.entries(CFG_DEF).forEach(([key,cfg])=>{const d=document.createElement('div');d.className='ccard'+(key==='klant'?' full':'');d.innerHTML=`<div class="ccard-hdr"><span class="ctitle">${cfg.l}</span><span class="ccnt" id="cn-${key}">${cfg.i.length}</span></div><div class="tags" id="ct-${key}"></div><div class="dvd"></div><div class="arow"><input id="ci-${key}" placeholder="Toevoegen..." onkeydown="if(event.key==='Enter')cfgAdd('${key}')"><button onclick="cfgAdd('${key}')">+ Toevoegen</button></div>`;g.appendChild(d);rtags(key,cfg);});}
+function rtags(key,cfg){const el=document.getElementById('ct-'+key);if(!el)return;el.innerHTML=cfg.i.map((x,i)=>`<span class="tag ${cfg.c}">${x}<button class="tagx" onclick="cfgRm('${key}',${i})">✕</button></span>`).join('');const c=document.getElementById('cn-'+key);if(c)c.textContent=cfg.i.length;}
+function cfgAdd(key){const inp=document.getElementById('ci-'+key),v=inp.value.trim();if(!v)return;if(CFG_DEF[key].i.includes(v))return;CFG_DEF[key].i.push(v);inp.value='';rtags(key,CFG_DEF[key]);}
+function cfgRm(key,i){CFG_DEF[key].i.splice(i,1);rtags(key,CFG_DEF[key]);}
+function saveSettings(){const t=document.getElementById('tst');t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200);}
+if(token)startApp();
+</script>
+</body>
+</html>

@@ -20,4 +20,5 @@ jobs:
       run:
         docker login -u sevn231 -p ${{ secrets.DOCKER_HUB_TOKEN }}
     - name:  push image to docker hub
+      run: 
         docker push sevn231/clientenbestand:latest

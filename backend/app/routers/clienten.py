@@ -63,7 +63,7 @@ async def update_client(cid: uuid.UUID, body: ClientIn, db: AsyncSession = Depen
     c = await db.get(Client, cid)
     if not c: raise HTTPException(404, "Niet gevonden")
     data = body.model_dump()
-    FIELD_LABELS = {"naam":"Naam","bsn":"BSN","status":"Status","klant":"Organisatie","locatie":"Locatie","begeleider_1":"Begeleider 1","begeleider_2":"Begeleider 2","datum_start":"Datum start","einde_beschikking":"Einde beschikking","bedrag_beschikt":"Bedrag beschikt","gefactureerd":"Gefactureerd","betaald":"Betaald"}
+    FIELD_LABELS = {"naam":"Naam","bsn":"BSN","status":"Status","klant":"Organisatie","locatie":"Locatie","begeleider_1":"Begeleider 1","begeleider_2":"Begeleider 2","datum_start":"Datum start","einde_beschikking":"Einde beschikking","uur_per_week":"Uur per week","enquete_gestuurd":"Enquete gestuurd","laatste_gefactureerd":"Laatst gefactureerd"}
     for field, new_val in data.items():
         old_val = getattr(c, field)
         if str(old_val or "") != str(new_val or ""):
